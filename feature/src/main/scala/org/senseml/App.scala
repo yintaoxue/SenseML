@@ -4,6 +4,10 @@ package org.senseml
  * Hello world!
  *
  */
-object App extends Application {
-  println( "Hello World!" )
+object App extends {
+
+  def main(args: Array[String]): Unit = {
+    println( "Hello World!" )
+  }
+
 }
