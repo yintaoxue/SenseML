@@ -10,6 +10,7 @@
 
     <properties>
         <scala.version>2.11.8</scala.version>
+        <spark.version>2.3.0</spark.version>
     </properties>
 
     <repositories>
@@ -29,6 +30,20 @@
     </pluginRepositories>
 
     <dependencies>
+
+        <!-- spark -->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.11</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_2.11</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+
+
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
