@@ -7,6 +7,9 @@ import java.util.{Calendar, Date}
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
+/**
+  * generate test dataset with random
+  */
 object DataSetGen {
 
   def main(args: Array[String]): Unit = {
@@ -22,7 +25,7 @@ object DataSetGen {
       val industry = Random.nextInt(20)
       val price = Random.nextDouble() * 2000
       val priceStr = price.formatted("%.2f")
-      val cnt = Random.nextInt(5)
+      val quantity = Random.nextInt(5)
       val cal = Calendar.getInstance()
       cal.add(Calendar.DATE, Random.nextInt(100) * -1)
       cal.set(Calendar.HOUR_OF_DAY, Random.nextInt(24))
@@ -31,7 +34,7 @@ object DataSetGen {
       val create_time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(cal.getTime)
 
       val rs = "" + order_id + "," + user_id + "," + city + "," + industry + "," + priceStr + "," +
-        cnt + "," + create_time
+        quantity + "," + create_time
 
       data += rs
     }
