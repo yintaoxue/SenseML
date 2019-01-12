@@ -1,7 +1,8 @@
-package org.senseml.feature
+package test.feature
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
+import org.senseml.feature.Features
 import org.senseml.feature.util.EnvUtil
 
 object App {
@@ -31,6 +32,14 @@ object App {
 
     orders.cache()
     orders.show()
+    val schema = orders.schema
+    println(schema)
+
+    // make data time feature from create_time
+    val rs = Features.makeDateTimeFeature(spark, orders, "create_time")
+    rs.show()
+    println(rs.schema)
+//    rs.select($"*", $"create_time").show()
 
   }
 

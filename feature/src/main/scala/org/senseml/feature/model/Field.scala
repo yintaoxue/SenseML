@@ -6,22 +6,25 @@ package org.senseml.feature.model
   * Created by xueyintao on 2019-01-11.
   */
 class Field {
-  // 字段名
+  // field name
   var name: String = _
-  // 字段缩写
+  // simple field name
   var simple: String = _
-  // 字段类型
+  // field type, like Int, Double
   var dtype: Object = _
-  // 字段值
-  var value: Object = null
+  // field value
+  var value: Object = _
+  // value type: VTYPE_NUM(default), VTYPE_INDEX, VTYPE_DIM, VTYPE_CATEGORY
+  var vtype: Int = 0
 
-  def this(name: String, simple: String, dtype: Object, value: Object = null) {
+  def this(name: String, simple: String, dtype: Object, value: Object = null, vtype: Int = 0) {
     this()
     this.name = name
     this.simple = simple
     this.dtype = dtype
     this.value = value
+    this.vtype = vtype
   }
 
-  override def toString = s"Field($name, $simple, $dtype, $value)"
+  override def toString = s"Field($name, $simple, $dtype, $value, $vtype)"
 }

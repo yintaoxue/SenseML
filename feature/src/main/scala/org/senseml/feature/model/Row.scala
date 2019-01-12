@@ -13,21 +13,15 @@ class Row[T] extends Serializable {
   var fields = new ArrayBuffer[Field]()
   var value = new ArrayBuffer[T]()
 
-  def getFields(): ArrayBuffer[Field] = {
-    this.fields
-  }
-
-  def getValues(): ArrayBuffer[T] = {
-    this.value
-  }
-
-  override def toString = {
+  override def toString(): String = {
     var rs = new StringBuilder()
     rs.append("{")
-    for (i <- 0 to fields.length) {
+    for (i <- fields.indices) {
       rs.append(fields(i).name).append(":").append(value(i)).append(",")
     }
     if (rs.endsWith(","))
-      rs.dropRight(1)
+      rs = rs.dropRight(1)
+    rs.append("}")
+    rs.toString()
   }
 }

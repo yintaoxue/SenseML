@@ -1,4 +1,4 @@
-package org.senseml.feature
+package test.feature
 
 import org.senseml.feature.model.Field
 

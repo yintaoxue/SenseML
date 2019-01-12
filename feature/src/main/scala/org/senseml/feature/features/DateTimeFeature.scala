@@ -1,8 +1,8 @@
-package org.senseml.feature
+package org.senseml.feature.features
 
 import java.util.{Calendar, Date}
 
-import org.senseml.feature.model.{Field, Row}
+import org.senseml.feature.model.{Row, Field}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -55,8 +55,8 @@ object DateTimeFeature {
   /**
     * make given features
     *
-    * @param date
-    * @param fields
+    * @param date Date
+    * @param fields feature fields
     * @return
     */
   def make(date: Date, fields: Array[Field]): Row[Int] = {

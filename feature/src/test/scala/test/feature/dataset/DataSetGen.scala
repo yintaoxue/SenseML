@@ -1,4 +1,4 @@
-package org.senseml.feature.dataset
+package test.feature.dataset
 
 import java.io.FileWriter
 import java.text.SimpleDateFormat

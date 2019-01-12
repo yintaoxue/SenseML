@@ -1,9 +1,6 @@
-package org.senseml.feature
+package test.feature.features
 
-
-import java.util.Calendar
-
-import org.senseml.feature.DateTimeFeature._
+import org.senseml.feature.features.DateTimeFeature
 import org.senseml.feature.util.DateUtil
 
 /**
@@ -16,9 +13,8 @@ object TestDateTimeFeature {
   def testMake(): Unit = {
     val dt = DateUtil.parseDateTime("2018-12-11 18:50:01")
 
-    val features = Array(YEAR, MONTH, QUARTER, WEEK, DAY, DAY_OF_YEAR, WEEK_OF_MONTH, WEEK_OF_YEAR)
-    val rs = DateTimeFeature.make(dt)
-    println(rs)
+    val row = DateTimeFeature.make(dt)
+    println(row)
 
   }
 

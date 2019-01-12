@@ -9,10 +9,10 @@ import scala.collection.mutable.ArrayBuffer
   */
 class Schema {
 
-  // 字段名列表
-  var names = new ArrayBuffer[String]()
+  var index = new ArrayBuffer[Field]()
 
-  // 字段类型列表
-  var types = new ArrayBuffer[Object]()
+  // fields
+  var fields = new ArrayBuffer[Field]()
+
 
 }
