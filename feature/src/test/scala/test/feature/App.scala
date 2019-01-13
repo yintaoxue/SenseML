@@ -5,6 +5,8 @@ import org.apache.spark.sql.SparkSession
 import org.senseml.feature.Features
 import org.senseml.feature.util.EnvUtil
 
+import scala.collection.mutable
+
 object App {
 
   def main(args: Array[String]): Unit = {
@@ -24,22 +26,32 @@ object App {
     import spark.implicits._
 
     val orders_raw = spark.read.text(ordersPath)
-    val orders = orders_raw.map {
+    val ordersDF = orders_raw.map {
       row =>
         val f = row.getString(0).split(",")
         (f(0).toInt, f(1).toInt, f(2).toInt, f(3).toInt, f(4).toDouble, f(5).toInt, f(6))
     }.toDF("order_id", "user_id", "city", "industry", "price", "quantity", "create_time")
 
-    orders.cache()
-    orders.show()
-    val schema = orders.schema
+    ordersDF.cache()
+    ordersDF.show()
+    val schema = ordersDF.schema
     println(schema)
 
     // make data time feature from create_time
-    val rs = Features.makeDateTimeFeature(spark, orders, "create_time")
+    val rs = Features.makeDateTimeFeature(spark, ordersDF, "create_time")
     rs.show()
     println(rs.schema)
-//    rs.select($"*", $"create_time").show()
+
+    // agg features
+    val aggMap = new mutable.HashMap[String, String]()
+    aggMap.put("price", "sum")
+    aggMap.put("price", "avg")
+    aggMap.put("price", "max")
+    aggMap.put("price", "min")
+    aggMap.put("quantity", "sum")
+
+    val rs2 = Features.makeAggFeature(spark, ordersDF, "user_id", "price,quantity")
+    rs2.show()
 
   }
 
