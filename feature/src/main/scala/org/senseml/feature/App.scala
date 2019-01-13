@@ -29,6 +29,7 @@ object App {
     val spark = SparkSession.builder().master("local").appName("Feature").getOrCreate()
     import spark.implicits._
 
+    // load data to DF
     val orders_raw = spark.read.text(ordersPath)
     val ordersDF = orders_raw.map {
       row =>
@@ -38,15 +39,15 @@ object App {
 
     ordersDF.cache()
     ordersDF.show()
-    val schema = ordersDF.schema
-    println(schema)
+    println(ordersDF.schema)
 
     // make data time feature from create_time
     val rs = Features.makeDateTimeFeature(spark, ordersDF, "create_time")
+    rs.cache()
     rs.show()
     println(rs.schema)
 
-    // agg features
+    // group agg features
     val aggMap = new mutable.HashMap[String, String]()
     aggMap.put("price", "sum")
     aggMap.put("price", "avg")

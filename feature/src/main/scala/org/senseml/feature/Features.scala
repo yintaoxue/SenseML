@@ -1,12 +1,7 @@
 package org.senseml.feature
 
-import org.apache.spark.sql.functions.{col, max, udf}
-import org.apache.spark.sql.types.{FloatType, IntegerType, StructField, StructType}
-import org.apache.spark.sql.{Column, DataFrame, SparkSession}
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.senseml.feature.features.{DateTimeFeature, StatFeature}
-import org.senseml.feature.util.DateUtil
-
-import scala.collection.mutable.ListBuffer
 
 /**
   * Features
@@ -14,20 +9,10 @@ import scala.collection.mutable.ListBuffer
   */
 object Features {
 
-  def makeDateTimeFeature(spark: SparkSession, df: DataFrame, field: String): DataFrame = {
 
-    def funDTFeature(): String => Array[Int] = {
-      x =>
-        val dt = DateUtil.parseDateTime(x)
-        DateTimeFeature.make(dt, false).value.toArray
-    }
-
-    val udfDTFeature = udf(funDTFeature)
-
-    val rs = df.withColumn(field + "_dt", udfDTFeature(col(field)))
-    rs
+  def makeDateTimeFeature(spark: SparkSession, df: DataFrame, field: String, withTime: Boolean = true): DataFrame = {
+    DateTimeFeature.makeDateTimeFeature(spark, df, field, withTime)
   }
-
 
   def makeAggFeature(spark: SparkSession, df: DataFrame, groupby: List[String], fields: List[String]): DataFrame = {
     // make agg features

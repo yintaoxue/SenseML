@@ -8,7 +8,7 @@ import scala.collection.mutable.ArrayBuffer
   * Created by xueyintao on 2019-01-11.
   */
 @SerialVersionUID(1L)
-class Row[T] extends Serializable {
+class FeatureRow[T] extends Serializable {
 
   var fields = new ArrayBuffer[Field]()
   var value = new ArrayBuffer[T]()

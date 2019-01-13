@@ -2,9 +2,12 @@ package org.senseml.feature.features
 
 import java.util.{Calendar, Date}
 
-import org.senseml.feature.model.{Row, Field}
+import org.apache.spark.sql.functions.{col, udf}
+import org.apache.spark.sql.{Column, DataFrame, SparkSession}
+import org.senseml.feature.model.{Field, FeatureRow}
+import org.senseml.feature.util.DateUtil
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
   * DateTimeFeature
@@ -38,6 +41,32 @@ object DateTimeFeature {
   val features = Array.concat(dateFeatures, timeFeatures)
 
 
+  def makeDateTimeFeature(spark: SparkSession, df: DataFrame, field: String, withTime: Boolean = true): DataFrame = {
+    // UDF func to make datatime features
+    def funDTFeature(): String => Array[Int] = {
+      x =>
+        val dt = DateUtil.parseDateTime(x)
+        make(dt, withTime)
+    }
+
+    val udfDTFeature = udf(funDTFeature())
+
+    val newFieldName = field + "__dt"
+    val dfWithDT = df.withColumn(newFieldName, udfDTFeature(col(field)))
+
+    val fieldNames = getFieldNames(withTime)
+
+    // unpack columns
+    var colList = ListBuffer[Column]()
+    colList += col("*")
+    for (i <- fieldNames.indices) {
+      colList += col(newFieldName)(i).alias(fieldNames(i))
+    }
+
+    // unpack
+    dfWithDT.select(colList: _*).drop(newFieldName)
+  }
+
   /**
     * make date features
     *
@@ -45,7 +74,7 @@ object DateTimeFeature {
     * @param withTime only date or has time, decide whether make time features
     * @return
     */
-  def make(date: Date, withTime: Boolean = true): Row[Int] = {
+  def make(date: Date, withTime: Boolean = true): Array[Int] = {
     if (withTime)
       make(date, features)
     else
@@ -59,7 +88,7 @@ object DateTimeFeature {
     * @param fields feature fields
     * @return
     */
-  def make(date: Date, fields: Array[Field]): Row[Int] = {
+  def make(date: Date, fields: Array[Field]): Array[Int] = {
     val values = new ArrayBuffer[Int]()
     val cal = Calendar.getInstance()
     cal.setTime(date)
@@ -93,10 +122,14 @@ object DateTimeFeature {
       values += rs
     }
 
-    val row = new Row[Int]()
-    row.fields ++= fields
-    row.value ++= values
-    row
+    values.toArray
+  }
+
+  def getFieldNames(withTime: Boolean = true): Array[String] = {
+    if (withTime)
+      features.map(_.name)
+    else
+      dateFeatures.map(_.name)
   }
 
 }
