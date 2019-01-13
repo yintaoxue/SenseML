@@ -3,7 +3,7 @@ package org.senseml.feature
 import org.apache.spark.sql.functions.{col, max, udf}
 import org.apache.spark.sql.types.{FloatType, IntegerType, StructField, StructType}
 import org.apache.spark.sql.{Column, DataFrame, SparkSession}
-import org.senseml.feature.features.DateTimeFeature
+import org.senseml.feature.features.{DateTimeFeature, StatFeature}
 import org.senseml.feature.util.DateUtil
 
 import scala.collection.mutable.ListBuffer
@@ -29,27 +29,13 @@ object Features {
   }
 
 
-  def makeAggFeature(spark: SparkSession, df: DataFrame, groupBy: String, fields: String): DataFrame = {
-    val aggFuncs = "sum,avg,count,min,max"
-    import org.apache.spark.sql.functions._
+  def makeAggFeature(spark: SparkSession, df: DataFrame, groupby: List[String], fields: List[String]): DataFrame = {
+    // make agg features
+    val statDF = StatFeature.makeAggFeature(spark, df, groupby, fields)
 
-    // generate agg funcs
-    var funcList = ListBuffer[Column]()
-    for (field <- fields.split(","))
-      for (func <- aggFuncs.split(",")) {
-        val funcf = func match {
-          case "sum" => sum(field)
-          case "avg" => avg(field)
-          case "count" => count(field)
-          case "min" => min(field)
-          case "max" => max(field)
-        }
-        funcList += funcf
-      }
-
-    val gb = df.groupBy(groupBy)
-    val aggRS = gb.agg(funcList.head, funcList.tail: _*)
-    aggRS
+    // join togethor
+    val joinDF = df.join(statDF, groupby.toSeq, "left")
+    joinDF
   }
 
 

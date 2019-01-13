@@ -1,12 +1,16 @@
-package test.feature
+package org.senseml.feature
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
-import org.senseml.feature.Features
 import org.senseml.feature.util.EnvUtil
 
 import scala.collection.mutable
 
+/**
+  * App
+  *
+  * Created by xueyintao on 2019-01-13.
+  */
 object App {
 
   def main(args: Array[String]): Unit = {
@@ -50,7 +54,7 @@ object App {
     aggMap.put("price", "min")
     aggMap.put("quantity", "sum")
 
-    val rs2 = Features.makeAggFeature(spark, ordersDF, "user_id", "price,quantity")
+    val rs2 = Features.makeAggFeature(spark, ordersDF, List("user_id","city"), List("price","quantity"))
     rs2.show()
 
   }
