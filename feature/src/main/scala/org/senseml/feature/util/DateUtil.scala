@@ -16,7 +16,7 @@
 package org.senseml.feature.util
 
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.{Calendar, Date}
 
 /**
   * DateUtil
@@ -41,6 +41,19 @@ object DateUtil {
   def parseDate(date: String, fmt: String): Date = {
     val sdf = new SimpleDateFormat(fmt)
     sdf.parse(date)
+  }
+
+  def diffDays(date1: Date, date2: Date): Int = {
+    val diffms = date1.getTime - date2.getTime
+    val nd = 1000 * 60 * 60 * 24
+    (diffms / nd).toInt
+  }
+
+  def addDate(date: Date, days: Int): Date = {
+    val calendar = Calendar.getInstance()
+    calendar.setTime(date)
+    calendar.add(Calendar.DATE, days)
+    calendar.getTime
   }
 
 }

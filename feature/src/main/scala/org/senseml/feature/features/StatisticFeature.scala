@@ -20,12 +20,11 @@ import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 import scala.collection.mutable.ListBuffer
 
 /**
-  * StatFeature
-  * statistical features
+  * StatisticFeature
   *
   * Created by xueyintao on 2019-01-13.
   */
-object StatFeature {
+object StatisticFeature {
 
   val defaultAggFuncs = "sum,avg,count,min,max"
   import org.apache.spark.sql.functions._

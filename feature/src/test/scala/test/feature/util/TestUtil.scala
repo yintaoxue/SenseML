@@ -13,30 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.senseml.feature
+package test.feature.util
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.senseml.feature.features.{DateTimeFeature, StatisticFeature}
+import java.text.SimpleDateFormat
+
+import org.senseml.feature.util.DateUtil
 
 /**
-  * Features
-  * Created by xueyintao on 2019-01-11.
+  * TestUtil
+  *
+  * Author: YintaoXue (ruogu.org)
+  * Date: 2019-01-14
   */
-object Features {
+object TestUtil {
 
+  def main(args: Array[String]): Unit = {
 
-  def makeDateTimeFeature(spark: SparkSession, df: DataFrame, field: String, withTime: Boolean = true): DataFrame = {
-    DateTimeFeature.makeDateTimeFeature(spark, df, field, withTime)
+    val sdf = new SimpleDateFormat("yyyy-MM-dd")
+
+    // test DateUtil
+    val date1 = new SimpleDateFormat("yyyy-MM-dd").parse("2018-12-31")
+    val date2 = new SimpleDateFormat("yyyy-MM-dd").parse("2018-12-28")
+    val diffDays = DateUtil.diffDays(date1, date2)
+    println(diffDays)
+
+    val adddate = DateUtil.addDate(date1, -1)
+    val adddate2 = DateUtil.addDate(date1, 1)
+    println("addDate(-1): " + sdf.format(adddate))
+    println("addDate(1): " + sdf.format(adddate2))
+
   }
-
-  def makeAggFeature(spark: SparkSession, df: DataFrame, groupby: List[String], fields: List[String]): DataFrame = {
-    // make agg features
-    val statDF = StatisticFeature.makeAggFeature(spark, df, groupby, fields)
-
-    // join togethor
-    val joinDF = df.join(statDF, groupby.toSeq, "left")
-    joinDF
-  }
-
 
 }

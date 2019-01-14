@@ -13,30 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.senseml.feature
+package test.feature.model
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.senseml.feature.features.{DateTimeFeature, StatisticFeature}
+import org.senseml.feature.model.Field
 
 /**
-  * Features
+  * TestModel
+  *
   * Created by xueyintao on 2019-01-11.
   */
-object Features {
+object TestModel {
 
+  def main(args: Array[String]): Unit = {
 
-  def makeDateTimeFeature(spark: SparkSession, df: DataFrame, field: String, withTime: Boolean = true): DataFrame = {
-    DateTimeFeature.makeDateTimeFeature(spark, df, field, withTime)
+    val YEAR = new Field("year", "y", Int)
+    println(YEAR)
+
   }
-
-  def makeAggFeature(spark: SparkSession, df: DataFrame, groupby: List[String], fields: List[String]): DataFrame = {
-    // make agg features
-    val statDF = StatisticFeature.makeAggFeature(spark, df, groupby, fields)
-
-    // join togethor
-    val joinDF = df.join(statDF, groupby.toSeq, "left")
-    joinDF
-  }
-
 
 }
