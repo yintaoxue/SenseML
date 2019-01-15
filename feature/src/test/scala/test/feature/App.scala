@@ -82,9 +82,14 @@ object App {
     val startDT = sdf.parse("2018-12-31")
     val dtWindows = List(1,2,3,4,5)
 
-    val rs3 = TimeSeriesFeature.makeTimeSeriesFeature(spark, tmpDF, "create_time", List("user_id"),
+//    val rs3 = TimeSeriesFeature.makeTimeSeriesFeature(spark, tmpDF, "create_time", List("user_id"),
+//      List("price", "quantity"), List("sum","count"), startDT, dtWindows)
+//    rs3.orderBy($"user_id".asc, $"create_time__ts".asc)show(100)
+
+    val rs4 = TimeSeriesFeature.makeTimeSeriesFeatureColumns(spark, tmpDF, "create_time", List("user_id"),
       List("price", "quantity"), List("sum","count"), startDT, dtWindows)
-    rs3.orderBy($"user_id".asc, $"create_time__ts".asc)show(100)
+    rs4.orderBy($"user_id".asc)show(100)
+
 
   }
 

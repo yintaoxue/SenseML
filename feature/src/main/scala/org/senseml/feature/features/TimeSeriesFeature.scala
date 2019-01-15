@@ -45,9 +45,65 @@ object TimeSeriesFeature {
     */
   def makeTimeSeriesFeature(spark: SparkSession, df: DataFrame, dtField: String, groupby: List[String], calFields: List[String],
                             funcs: List[String], startDT: Date, dtWindows: List[Int], backward: Boolean = true): DataFrame = {
-    // trans date to window id
+    // distinct date values
     val dtValues = df.select(dtField).distinct()
+    // trans date value to window id
+    val dtWindowDF = transDateWindow(spark, dtValues, dtField, startDT, dtWindows, backward)
 
+    // join
+    val joinedDF = df.join(dtWindowDF, List(dtField), "inner")
+
+    // groupby time window
+    val groupbyList = ListBuffer[String]()
+    groupbyList ++= groupby
+    groupbyList += dtField + "__ts"
+    val result = StatisticFeature.groupbyAggFeature(spark, joinedDF, groupbyList.toList, calFields, funcs)
+
+    result
+  }
+
+  /**
+    * make time series features, dtWindows are aggregate into columns
+    *
+    * @param spark SparkSession
+    * @param df dataset
+    * @param dtField the date field name to calculate date window with
+    * @param calFields the fields to make sum/count etc
+    * @param funcs sum,count...ops to make on calFields
+    * @param startDT start date to calculate the window
+    * @param dtWindows date windows, it's day ranges
+    * @param backward date add backward(default) or forward
+    * @return
+    */
+  def makeTimeSeriesFeatureColumns(spark: SparkSession, df: DataFrame, dtField: String, groupby: List[String], calFields: List[String],
+                            funcs: List[String], startDT: Date, dtWindows: List[Int], backward: Boolean = true): DataFrame = {
+    // distinct date values
+    val dtValues = df.select(dtField).distinct()
+    // trans date value to window id
+    val dtWindowDF = transDateWindow(spark, dtValues, dtField, startDT, dtWindows, backward)
+    val windFieldName = dtField + "__ts"
+
+    // join
+    val joinedDF = df.join(dtWindowDF, List(dtField), "inner")
+
+    val result = PivotFeature.makePivotFeature(spark, joinedDF, groupby, windFieldName, null, calFields, funcs)
+    result
+  }
+
+  /**
+    * trans date value to window id
+    *
+    * @param spark SparkSession
+    * @param df dataset
+    * @param dtField the date field name to calculate date window with
+    * @param startDT start date to calculate the window
+    * @param dtWindows date windows, it's day ranges
+    * @param backward date add backward(default) or forward
+    * @return
+    */
+  def transDateWindow(spark: SparkSession, df: DataFrame, dtField: String, startDT: Date, dtWindows: List[Int],
+                      backward: Boolean = true): DataFrame = {
+      // udf func
     def funcDateWindow(): Date => String = {
       date =>
         var diffDays = DateUtil.diffDays(startDT, date)
@@ -81,17 +137,8 @@ object TimeSeriesFeature {
     val udfDateWindow = udf(funcDateWindow())
 
     val windFieldName = dtField + "__ts"
-    val dtWindowDF = dtValues.withColumn(windFieldName, udfDateWindow(col(dtField))).filter(col(windFieldName) =!= "ts_-1_-1_-1")
-    // join
-    val joinedDF = df.join(dtWindowDF, List(dtField), "inner")
-
-    // groupby time window
-    val groupbyList = ListBuffer[String]()
-    groupbyList ++= groupby
-    groupbyList += windFieldName
-    val result = StatisticFeature.groupbyAggFeature(spark, joinedDF, groupbyList.toList, calFields, funcs)
-
-    result
+    val dtWindowDF = df.withColumn(windFieldName, udfDateWindow(col(dtField))).filter(col(windFieldName) =!= "ts_-1_-1_-1")
+    dtWindowDF
   }
 
   /**

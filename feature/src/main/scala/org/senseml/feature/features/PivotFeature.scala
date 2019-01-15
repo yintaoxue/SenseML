@@ -15,6 +15,9 @@
  */
 package org.senseml.feature.features
 
+import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.senseml.feature.util.DataFrameUtil
+
 /**
   * PivotFeature
   *
@@ -23,6 +26,31 @@ package org.senseml.feature.features
   */
 object PivotFeature {
 
+  /**
+    * make pivot features
+    *
+    * @param spark SparkSession
+    * @param df DataFrame
+    * @param groupby group by field
+    * @param pivot pivot field
+    * @param pivotValues pivot values, can be null
+    * @param fields fields to agg
+    * @param aggFuncs agg funcs
+    * @return
+    */
+  def makePivotFeature(spark: SparkSession, df: DataFrame, groupby: List[String], pivot: String, pivotValues: List[Any],
+                       fields: List[String], aggFuncs: List[String]): DataFrame = {
+    // generate agg funcs
+    val funcList = DataFrameUtil.makeAggFuncs(fields, aggFuncs)
 
+    // groupby agg
+    var resultDF: DataFrame = null
+
+    if (pivotValues == null)
+      resultDF = df.groupBy(groupby.head, groupby.tail: _*).pivot(pivot).agg(funcList.head, funcList.tail: _*)
+    else
+        resultDF = df.groupBy(groupby.head, groupby.tail: _*).pivot(pivot, pivotValues).agg(funcList.head, funcList.tail: _*)
+    resultDF
+  }
 
 }

@@ -6,6 +6,10 @@ SenseML是一个基于scala、spark的机器学习框架，可以通过简单配
 ## Feature
 * Time dimension features
 * Groupby aggregation features, sum,avg,min,max,count
+* TimeSeries features
+* Pivot features
+* [TODO] Feature quantile
+* [TODO] Feature scale
 * [TODO] Feature combination
 * [TODO] Feature selection
 
