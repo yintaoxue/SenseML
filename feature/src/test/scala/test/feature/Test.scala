@@ -54,22 +54,28 @@ object Test {
     }
 
 
-    val dt2 = DateUtil.addDate(dt, 2)
+    val dt2 = DateUtil.addDate(dt, -2)
     println("dt2:" + sdf.format(dt2))
 
     val diffDays = DateUtil.diffDays(dt2, dt)
 
     var wind = -1
+    var start = -1
+    var end = -1
     breakable {
       for (i <- windArray) {
         wind += 1
         if (diffDays >= i(0) && diffDays <= i(1)) {
+          start = i(0)
+          end = i(1)
           break
         }
       }
     }
+    if (start == -1)
+      wind = -1
 
-    println("wind:" + wind)
+    println(s"ts_${wind}_${start}_${end}")
 
 
   }

@@ -15,9 +15,8 @@
  */
 package org.senseml.feature.features
 
-import org.apache.spark.sql.{Column, DataFrame, SparkSession}
-
-import scala.collection.mutable.ListBuffer
+import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.senseml.feature.util.DataFrameUtil
 
 /**
   * StatisticFeature
@@ -26,8 +25,7 @@ import scala.collection.mutable.ListBuffer
   */
 object StatisticFeature {
 
-  val defaultAggFuncs = "sum,avg,count,min,max"
-  import org.apache.spark.sql.functions._
+  val defaultAggFuncs = List("sum", "avg", "count", "min" , "max")
 
   /**
     * make groupby agg features, support:sum,avg,count,min,max
@@ -52,20 +50,18 @@ object StatisticFeature {
     * @param aggFuncs agg functions, comma separated
     * @return
     */
-  def makeAggFeature(spark: SparkSession, df: DataFrame, groupby: List[String], fields: List[String], aggFuncs: String): DataFrame = {
+  def makeAggFeature(spark: SparkSession, df: DataFrame, groupby: List[String], fields: List[String], aggFuncs: List[String]): DataFrame = {
+    // make agg features
+    val statDF = groupbyAggFeature(spark, df, groupby, fields, aggFuncs)
+
+    // join togethor
+    val joinDF = df.join(statDF, groupby.toSeq, "left")
+    joinDF
+  }
+
+  def groupbyAggFeature(spark: SparkSession, df: DataFrame, groupby: List[String], fields: List[String], aggFuncs: List[String]): DataFrame = {
     // generate agg funcs
-    var funcList = ListBuffer[Column]()
-    for (field <- fields)
-      for (func <- aggFuncs.split(",")) {
-        val funcf = func match {
-          case "sum" => sum(field)
-          case "avg" => avg(field)
-          case "count" => count(field)
-          case "min" => min(field)
-          case "max" => max(field)
-        }
-        funcList += funcf
-      }
+    val funcList = DataFrameUtil.makeAggFuncs(fields, aggFuncs)
 
     // groupby agg
     val gb = df.groupBy(groupby.head, groupby.tail: _*)

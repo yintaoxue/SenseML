@@ -13,46 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test.feature.util
+package test.feature.features
 
 import java.text.SimpleDateFormat
 
 import org.senseml.feature.features.TimeSeriesFeature
-import org.senseml.feature.util.{DataFrameUtil, DateUtil}
 
 /**
-  * TestUtil
+  * TestTimeSeriesFeature
   *
   * Author: YintaoXue (ruogu.org)
-  * Date: 2019-01-14
+  * Date: 2019-01-15
   */
-object TestUtil {
+object TestTimeSeriesFeature {
 
   def main(args: Array[String]): Unit = {
-
-    testDataFrameUtil()
-
+    testGetWindArray()
   }
 
-  def testDateUtil(): Unit = {
+  def testGetWindArray(): Unit = {
     val sdf = new SimpleDateFormat("yyyy-MM-dd")
 
-    // test DateUtil
-    val date1 = new SimpleDateFormat("yyyy-MM-dd").parse("2018-12-31")
-    val date2 = new SimpleDateFormat("yyyy-MM-dd").parse("2018-12-28")
-    val diffDays = DateUtil.diffDays(date1, date2)
-    println(diffDays)
+    val dt = sdf.parse("2018-12-31")
+    val dtWindows: List[Int] = List(1,2,3,4)
 
-    val adddate = DateUtil.addDate(date1, -1)
-    val adddate2 = DateUtil.addDate(date1, 1)
-    println("addDate(-1): " + sdf.format(adddate))
-    println("addDate(1): " + sdf.format(adddate2))
+    val windArray = TimeSeriesFeature.getWindArray(dtWindows)
+    println("windArray:")
+    windArray.foreach(_.foreach(x=> print(x + " ")))
+    println()
 
-  }
+    val rs1 = TimeSeriesFeature.getDateRangeByWindow(dt, dtWindows)
+    rs1.foreach(x=>x.foreach(println))
 
-  def testDataFrameUtil(): Unit = {
-    val rs = DataFrameUtil.makeAggFuncs(List("id", "cnt"), List("sum", "avg", "count"))
-    println(rs)
   }
 
 }

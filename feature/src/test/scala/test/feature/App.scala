@@ -16,15 +16,11 @@
 package test.feature
 
 import java.text.SimpleDateFormat
-import java.util.Date
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
-import org.senseml.feature.Features
 import org.senseml.feature.features.TimeSeriesFeature
 import org.senseml.feature.util.EnvUtil
-
-import scala.collection.mutable
 
 /**
   * App
@@ -62,22 +58,22 @@ object App {
     println(ordersDF.schema)
 
     /** data time feature */
-    val rs = Features.makeDateTimeFeature(spark, ordersDF, "create_time")
-    rs.cache()
-    rs.show()
-    println(rs.schema)
-
-    /** group agg features */
-    val aggMap = new mutable.HashMap[String, String]()
-    aggMap.put("price", "sum")
-    aggMap.put("price", "avg")
-    aggMap.put("price", "max")
-    aggMap.put("price", "min")
-    aggMap.put("quantity", "sum")
-
-    val rs2 = Features.makeAggFeature(spark, ordersDF, List("user_id","city"), List("price","quantity"))
-    rs2.show()
-
+//    val rs = Features.makeDateTimeFeature(spark, ordersDF, "create_time")
+//    rs.cache()
+//    rs.show()
+//    println(rs.schema)
+//
+//    /** group agg features */
+//    val aggMap = new mutable.HashMap[String, String]()
+//    aggMap.put("price", "sum")
+//    aggMap.put("price", "avg")
+//    aggMap.put("price", "max")
+//    aggMap.put("price", "min")
+//    aggMap.put("quantity", "sum")
+//
+//    val rs2 = Features.makeAggFeature(spark, ordersDF, List("user_id","city"), List("price","quantity"))
+//    rs2.show()
+//
     /** time series features */
     val tmpDF = ordersDF.withColumn("create_time", $"create_time".cast("date"))
     tmpDF.show()
@@ -86,8 +82,9 @@ object App {
     val startDT = sdf.parse("2018-12-31")
     val dtWindows = List(1,2,3,4,5)
 
-    val rs3 = TimeSeriesFeature.makeTimeSeriesFeature(spark, tmpDF, "create_time", List(""), "funcs", startDT, dtWindows)
-    rs3.show()
+    val rs3 = TimeSeriesFeature.makeTimeSeriesFeature(spark, tmpDF, "create_time", List("user_id"),
+      List("price", "quantity"), List("sum","count"), startDT, dtWindows)
+    rs3.orderBy($"user_id".asc, $"create_time__ts".asc)show(100)
 
   }
 
