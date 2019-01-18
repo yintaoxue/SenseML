@@ -19,8 +19,10 @@ import java.text.SimpleDateFormat
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
-import org.senseml.feature.features.TimeSeriesFeature
+import org.senseml.feature.Features
+import org.senseml.feature.features.{StatisticFeature, TimeSeriesFeature}
 import org.senseml.feature.util.EnvUtil
+import scala.collection.mutable
 
 /**
   * App
@@ -30,7 +32,7 @@ import org.senseml.feature.util.EnvUtil
 object App {
 
   def main(args: Array[String]): Unit = {
-    Logger.getLogger("org.apache.spark").setLevel(Level.WARN) // 避免打印大量日志
+    Logger.getLogger("org.apache.spark").setLevel(Level.WARN) // avoid spark print too many logs
 
     run()
 
@@ -63,32 +65,38 @@ object App {
 //    rs.show()
 //    println(rs.schema)
 //
-//    /** group agg features */
-//    val aggMap = new mutable.HashMap[String, String]()
-//    aggMap.put("price", "sum")
-//    aggMap.put("price", "avg")
-//    aggMap.put("price", "max")
-//    aggMap.put("price", "min")
-//    aggMap.put("quantity", "sum")
-//
+    /** group agg features */
+    val aggMap = new mutable.HashMap[String, String]()
+    aggMap.put("price", "sum")
+    aggMap.put("price", "avg")
+    aggMap.put("price", "max")
+    aggMap.put("price", "min")
+    aggMap.put("quantity", "sum")
+
+
+    val rs1 = StatisticFeature.groupbyAggFeature(spark, ordersDF, List("user_id","order_id", "city"),
+      List("price","quantity","industry"), StatisticFeature.defaultAggFuncs)
+    println("\nStatisticFeature without join back:")
+    rs1.show()
+
 //    val rs2 = Features.makeAggFeature(spark, ordersDF, List("user_id","city"), List("price","quantity"))
 //    rs2.show()
 //
     /** time series features */
-    val tmpDF = ordersDF.withColumn("create_time", $"create_time".cast("date"))
-    tmpDF.show()
-
-    val sdf = new SimpleDateFormat("yyyy-MM-dd")
-    val startDT = sdf.parse("2018-12-31")
-    val dtWindows = List(1,2,3,4,5)
+//    val tmpDF = ordersDF.withColumn("create_time", $"create_time".cast("date"))
+//    tmpDF.show()
+//
+//    val sdf = new SimpleDateFormat("yyyy-MM-dd")
+//    val startDT = sdf.parse("2018-12-31")
+//    val dtWindows = List(1,2,3,4,5)
 
 //    val rs3 = TimeSeriesFeature.makeTimeSeriesFeature(spark, tmpDF, "create_time", List("user_id"),
 //      List("price", "quantity"), List("sum","count"), startDT, dtWindows)
 //    rs3.orderBy($"user_id".asc, $"create_time__ts".asc)show(100)
 
-    val rs4 = TimeSeriesFeature.makeTimeSeriesFeatureColumns(spark, tmpDF, "create_time", List("user_id"),
-      List("price", "quantity"), List("sum","count"), startDT, dtWindows)
-    rs4.orderBy($"user_id".asc)show(100)
+//    val rs4 = TimeSeriesFeature.makeTimeSeriesFeatureColumns(spark, tmpDF, "create_time", List("user_id"),
+//      List("price", "quantity"), List("sum","count"), startDT, dtWindows)
+//    rs4.orderBy($"user_id".asc)show(100)
 
 
   }

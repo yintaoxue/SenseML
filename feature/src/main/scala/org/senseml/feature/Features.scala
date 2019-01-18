@@ -30,12 +30,7 @@ object Features {
   }
 
   def makeAggFeature(spark: SparkSession, df: DataFrame, groupby: List[String], fields: List[String]): DataFrame = {
-    // make agg features
-    val statDF = StatisticFeature.makeAggFeature(spark, df, groupby, fields)
-
-    // join togethor
-    val joinDF = df.join(statDF, groupby.toSeq, "left")
-    joinDF
+    StatisticFeature.makeAggFeature(spark, df, groupby, fields)
   }
 
 
